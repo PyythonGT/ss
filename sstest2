@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[ss]</title>
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            overflow: hidden;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        header {
+            text-align: center;
+            margin: 20px 0;
+        }
+        h1 {
+            font-size: 3em;
+            color: white;
+            text-shadow: 0 0 10px white, 0 0 20px white, 0 0 40px #ffffff, 0 0 60px #ffffff;
+        }
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .toggle-section {
+            margin-top: 20px;
+        }
+        #gameView {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        iframe {
+            width: 80%;
+            height: 80%;
+            border: none;
+        }
+        .game-controls {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <canvas id="particleCanvas"></canvas>
+
+    <header>
+        <h1>[ss]</h1>
+    </header>
+    <main>
+        <button id="toggleButton">Games</button>
+        <div id="gamesSection" class="toggle-section">
+            <button onclick="openGame('https://education-fun.web.app/storage/crossyroad/index.html')">Play Crossy Road</button>
+            <button onclick="openGame('https://education-fun.web.app/storage/arcane-archer/index.html')">Play Arcane Archer</button>
+        </div>
+    </main>
+
+    <div id="gameView">
+        <iframe id="gameFrame" src="" title="Game"></iframe>
+        <div class="game-controls">
+            <button onclick="closeGame()">Close Game</button>
+            <button onclick="toggleFullscreen()">Fullscreen</button>
+        </div>
+    </div>
+
+    <script>
+        // Game View Management
+        const gameView = document.getElementById('gameView');
+        const gameFrame = document.getElementById('gameFrame');
+
+        function openGame(gameUrl) {
+            gameFrame.src = gameUrl; // Set game iframe URL dynamically
+            gameView.style.display = 'flex';  // Show game view when button is clicked
+        }
+
+        function closeGame() {
+            gameFrame.src = ""; // Stop the game
+            gameView.style.display = 'none'; // Hide game view
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                gameView.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Particle Animation Script
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+        let canvasWidth = canvas.width = window.innerWidth;
+        let canvasHeight = canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvasWidth;
+                this.y = Math.random() * canvasHeight;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvasWidth) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvasHeight) this.speedY *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.shadowColor = 'white';
+                ctx.shadowBlur = 10;
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            for (let i = 0; i < 100; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            particlesArray.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            canvasWidth = canvas.width = window.innerWidth;
+            canvasHeight = canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        initParticles();
+        animateParticles();
+    </script>
+</body>
+</html>
